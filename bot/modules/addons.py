@@ -2,7 +2,7 @@ from pyrogram import enums
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, ConversationHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from bot import bot, LOGGER, DB_URI, OWNER_ID, PRE_DICT, LEECH_DICT, dispatcher, PAID_USERS, CAP_DICT, PAID_SERVICE, REM_DICT, SUF_DICT, CFONT_DICT, CAPTION_FONT
+from bot import bot, LOGGER, DB_URI, OWNER_ID, PRE_DICT, LEECH_DICT, dispatcher, PAID_USERS, CAP_DICT, PAID_SERVICE, REM_DICT, SUF_DICT, CFONT_DICT, CAPTION_FONT, SHORTENER_X, SHORTENER_API_X
 from bot.helper.telegram_helper.message_utils import *
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -288,7 +288,32 @@ def remname_set(update, context):
             LOGGER.info(f"User : {user_id_} Remname is Saved in DB")
         editMessage(f"<b><a href='tg://user?id={user_id_}'>{u_men}</a>'s Remname is Set Successfully :</b>\n\n<b>• Remname Text: </b>{txt}", lm)
 
+def shortner_set(update, context):
+    user_id_ = update.message.from_user.id 
+    u_men = update.message.from_user.first_name
 
+    if (BotCommands.UserLogCommand in update.message.text) and (len(update.message.text.split(' ')) == 1):
+        sendMessage(f'<b>{u_men}, Use /{BotCommands.UserLogCommand} (site name) (API)</b>', context.bot, update.message)
+    else:
+        lm = sendMessage("Please wait...🤖", context.bot, update.message)          
+        pre_send = update.message.text.split(" ", maxsplit=2)
+        reply_to = update.message.reply_to_message
+        if len(pre_send) > 1:
+            site = pre_send[1]
+            api = pre_send[2]
+            site_ = site
+            api_ = api
+            SHORTENER_X[user_id_] = site_
+            SHORTENER_API_X[user_id_] = api_
+            if DB_URI:
+                DbManger().user_shortsite(user_id_, site_)
+                DbManger().user_shortapi(user_id_, api_)
+                LOGGER.info(f"User : {user_id_} Shortener Details Saved in DB")
+            editMessage(f"<b>{u_men} your Shortener Site & API Saved...🛸</b>", lm)
+        elif reply_to is not None:
+            editMessage(f"<b>{u_men}, Use /{BotCommands.ShortCommand} (site name) (API)</b>", lm)
+        else:
+            editMessage(f"<b>{u_men}, Use /{BotCommands.ShortCommand} (site name) (API)</b>", lm)
 
 prefix_set_handler = CommandHandler(BotCommands.PreNameCommand, prefix_set,
                                        filters=(CustomFilters.authorized_chat | CustomFilters.authorized_user), run_async=True)
@@ -301,6 +326,8 @@ userlog_set_handler = CommandHandler(BotCommands.UserLogCommand, userlog_set,
 remname_set_handler = CommandHandler(BotCommands.RemnameCommand, remname_set,
                                        filters=(CustomFilters.authorized_chat | CustomFilters.authorized_user), run_async=True) 
 cap_font_handler = CallbackQueryHandler(setCapFont, pattern="capfont", run_async=True)
+shortx_set_handler = CommandHandler(BotCommands.ShortCommand, shortner_set,
+                                       filters=(CustomFilters.authorized_chat | CustomFilters.authorized_user), run_async=True) 
 
 dispatcher.add_handler(prefix_set_handler)
 dispatcher.add_handler(suffix_set_handler)
@@ -308,3 +335,4 @@ dispatcher.add_handler(caption_set_handler)
 dispatcher.add_handler(userlog_set_handler)
 dispatcher.add_handler(remname_set_handler)
 dispatcher.add_handler(cap_font_handler)
+dispatcher.add_handler(shortx_set_handler)
