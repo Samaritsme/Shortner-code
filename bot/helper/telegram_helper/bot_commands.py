@@ -29,6 +29,7 @@ class _BotCommands:
         self.CaptionCommand = getCommand('CAPTION_COMMAND', f'caption{CMD_INDEX}')
         self.UserLogCommand = getCommand('DUMPID_COMMAND', f'dumpid{CMD_INDEX}')
         self.RemnameCommand = getCommand('REMNAME_COMMAND', f'remname{CMD_INDEX}')
+        self.ShortCommand = getCommand('SHORT_COMMAND', f'short{CMD_INDEX}')
         self.AuthorizeCommand = getCommand('AUTH_COMMAND', f'authorize{CMD_INDEX}')
         self.UnAuthorizeCommand = getCommand('UNAUTH_COMMAND', f'unauthorize{CMD_INDEX}')
         self.AddSudoCommand = getCommand('ADDSUDO_COMMAND', f'addsudo{CMD_INDEX}')
