@@ -8,10 +8,11 @@ from PIL import Image
 from threading import RLock
 from bot import AS_DOCUMENT, AS_DOC_USERS, AS_MEDIA_USERS, EXTENSION_FILTER, \
                 app, LEECH_LOG, BOT_PM, tgBotMaxFileSize, premium_session, CAPTION_FONT, \
-                PRE_DICT, LEECH_DICT, LOG_LEECH, CAP_DICT, REM_DICT, SUF_DICT, CFONT_DICT
+                PRE_DICT, LEECH_DICT, LOG_LEECH, CAP_DICT, REM_DICT, SUF_DICT, CFONT_DICT, SHORTENER_X, SHORTENER_API_X
 from bot.helper.ext_utils.fs_utils import take_ss, get_media_info, get_media_streams, get_path_size, clean_unwanted
 from bot.helper.ext_utils.bot_utils import get_readable_file_size
 from pyrogram.types import Message
+from bot.helper.ext_utils.shortener import shortx_url
 
 LOGGER = getLogger(__name__)
 getLogger("pyrogram").setLevel(ERROR)
@@ -125,6 +126,8 @@ class TgUploader:
             new_path = ospath.join(dirpath, file_)
             osrename(up_path, new_path)
             up_path = new_path
+        shortener = SHORTENER_X.get(self.__listener.message.from_user.id, "")
+        api = SHORTENER_API_X.get(self.__listener.message.from_user.id, "")
         cfont = CAPTION_FONT if not FSTYLE else FSTYLE
         if CAPTION:
             CAPTION = CAPTION.replace('\s', ' ').replace('/s', ' ')
@@ -142,6 +145,12 @@ class TgUploader:
                         cap_mono = cap_mono.replace(args[0], args[1])
                     elif len(args) == 1:
                         cap_mono = cap_mono.replace(args[0], '')
+            if 'SHORTENER' in cap_mono:
+                if '0:/' in link or '1:/' in link or '2:/' in link or '3:/' in link or '4:/' in link or '5:/' in link or '6:/' in link or "workers.dev" in link:
+                    shortlink = shortx_url(link, shortener, api)
+                    cap_mono = cap_mono.replace("SHORTENER", shortlink, 1)
+                else:
+                    cap_mono = f"{cap_mono}"
         else:
             cap_mono = file_ if FSTYLE == 'r' else f"<{cfont}>{file_}</{cfont}>"
 
