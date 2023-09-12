@@ -38,7 +38,7 @@ from bot.helper.ext_utils.telegraph_helper import telegraph
 
 
 class MirrorLeechListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, tag=None, select=False, seed=False):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, tag=None, select=False, seed=False, link=None):
         self.bot = bot
         self.message = message
         self.uid = message.message_id
@@ -54,6 +54,7 @@ class MirrorLeechListener:
         self.select = select
         self.isPrivate = message.chat.type in ['private', 'group']
         self.suproc = None
+        self.link = link
         self.user_id = self.message.from_user.id	
         reply_to = self.message.reply_to_message
 
@@ -213,7 +214,8 @@ class MirrorLeechListener:
             for s in m_size:
                 size = size - s
             LOGGER.info(f"Leech Name: {up_name}")
-            tg = TgUploader(up_name, up_dir, size, self)
+            link = self.link
+            tg = TgUploader(up_name, up_dir, size, link, self)
             tg_upload_status = TgUploadStatus(tg, size, gid, self)
             with download_dict_lock:
                 download_dict[self.uid] = tg_upload_status
