@@ -19,7 +19,7 @@ getLogger("pyrogram").setLevel(ERROR)
 IMAGE_SUFFIXES = ("JPG", "JPX", "PNG", "CR2", "TIF", "BMP", "JXR", "PSD", "ICO", "HEIC", "JPEG")
 class TgUploader:
 
-    def __init__(self, name=None, path=None, size=0, listener=None):
+    def __init__(self, name=None, path=None, size=0, link=None, listener=None):
         self.name = name
         self.uploaded_bytes = 0
         self._last_uploaded = 0
@@ -36,6 +36,7 @@ class TgUploader:
         self.__is_corrupted = False
         self.__sent_msg = app.get_messages(self.__listener.message.chat.id, self.__listener.uid)
         self.__size = size
+        self.__link = link
         self.__user_settings()
         self.__leech_log = LEECH_LOG.copy()  # copy then pop to keep the original var as it is
         self.__app = app
@@ -77,6 +78,7 @@ class TgUploader:
         self.__listener.onUploadComplete(None, size, self.__msgs_dict, self.__total_files, self.__corrupted, self.name)
 
     def __upload_file(self, up_path, file_, dirpath):
+        link = self.__link
         fsize = ospath.getsize(up_path)
         # Initial Values >>>>
         client = premium_session if fsize > 2097152000 else app
